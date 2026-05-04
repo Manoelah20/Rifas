@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import RaffleList from '../components/RaffleList';
 import NumberGrid from '../components/NumberGrid';
 import apiService from '../services/api';
+import { useNotification } from '../context/NotificationContext';
 
 const Raffle = () => {
   const [selectedRaffle, setSelectedRaffle] = useState(null);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
+  const { addNotification } = useNotification();
 
   const handleNumbersChange = (numbers) => {
     setSelectedNumbers(numbers);
@@ -26,12 +28,10 @@ const Raffle = () => {
 
     try {
       await apiService.buyTicket(selectedRaffle._id, { numbers: selectedNumbers });
-      alert('Compra realizada com sucesso!');
+      addNotification('Compra realizada com sucesso!', 'success');
       setSelectedNumbers([]);
-      // Refresh sold numbers
-      // fetchSoldNumbers();
     } catch (error) {
-      alert('Erro ao realizar compra: ' + error.message);
+      addNotification('Erro ao realizar compra: ' + error.message, 'error');
     }
   };
 

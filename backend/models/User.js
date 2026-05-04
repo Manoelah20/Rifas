@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const encryption = require('../utils/encryption');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -19,13 +20,20 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters long'],
+    minlength: [8, 'Password must be at least 8 characters long'],
     select: false
   },
   phone: {
     type: String,
     trim: true,
-    match: [/^\d{10,11}$/, 'Please enter a valid phone number']
+    match: [/^\d{10,11}$/, 'Please enter a valid phone number'],
+    // Phone is encrypted before storage
+    set: function(value) {
+      if (value && this.isModified('phone')) {
+        return encryption.encrypt(value);
+      }
+      return value;
+    }
   },
   role: {
     type: String,
@@ -35,6 +43,18 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  loginAttempts: {
+    type: Number,
+    default: 0
+  },
+  lockUntil: {
+    type: Date,
+    default: null
+  },
+  lastLogin: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,
@@ -53,6 +73,12 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
+    if (!passwordRegex.test(this.password)) {
+      throw new Error('Password must contain uppercase, lowercase, number, and special character');
+    }
+
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
@@ -66,11 +92,82 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
+// Decrypt phone
+userSchema.methods.getDecryptedPhone = function() {
+  if (!this.phone) return null;
+  try {
+    return encryption.decrypt(this.phone);
+  } catch (error) {
+    console.error('Error decrypting phone:', error);
+    return null;
+  }
+};
+
+// Lock account after failed login attempts
+userSchema.methods.lockAccount = async function() {
+  this.loginAttempts = 5;
+  this.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // Lock for 30 minutes
+  await this.save();
+};
+
+// Unlock account
+userSchema.methods.unlockAccount = async function() {
+  this.loginAttempts = 0;
+  this.lockUntil = null;
+  await this.save();
+};
+
+// Check if account is locked
+userSchema.methods.isLocked = function() {
+  return this.lockUntil && this.lockUntil > new Date();
+};
+
+// Increment login attempts
+userSchema.methods.incLoginAttempts = async function() {
+  // If we have a previous lock that has expired, restart at 1
+  if (this.lockUntil && this.lockUntil < new Date()) {
+    return this.updateOne({
+      $set: { loginAttempts: 1 },
+      $unset: { lockUntil: 1 }
+    });
+  }
+
+  // Otherwise increment
+  const update = { $inc: { loginAttempts: 1 } };
+
+  // Lock account if max attempts reached
+  if (this.loginAttempts + 1 >= 5) {
+    update.$set = { lockUntil: new Date(Date.now() + 30 * 60 * 1000) };
+  }
+
+  return this.updateOne(update);
+};
+
+// Reset login attempts
+userSchema.methods.resetLoginAttempts = async function() {
+  return this.updateOne({
+    $set: { loginAttempts: 0 },
+    $unset: { lockUntil: 1 }
+  });
+};
+
 // Transform user data for response
 userSchema.methods.toJSON = function() {
   const userObject = this.toObject();
   delete userObject.password;
   delete userObject.__v;
+  delete userObject.lockUntil;
+  delete userObject.loginAttempts;
+  
+  // Decrypt phone for response
+  if (userObject.phone) {
+    try {
+      userObject.phone = encryption.decrypt(userObject.phone);
+    } catch (error) {
+      userObject.phone = null;
+    }
+  }
+  
   return userObject;
 };
 

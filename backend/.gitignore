@@ -1,0 +1,71 @@
+# Git Global Ignore for Sensitive Files
+# Security: Never commit these files
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Logs and Locks
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.Thumbs.db
+
+# Build and Dist
+dist/
+build/
+out/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Uploads (user-generated files)
+uploads/
+public/uploads/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Certificates and Keys
+*.pem
+*.key
+*.crt
+*.cer
+
+# Backups
+*.backup
+*.bak
+*.swp
+*.swo
+*~
+
+# API Documentation (if auto-generated)
+*.generated.*

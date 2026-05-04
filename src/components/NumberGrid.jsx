@@ -59,16 +59,22 @@ const NumberGrid = ({ raffleId, totalNumbers = 100, onNumbersChange }) => {
   };
 
   const handleNumberClick = (number) => {
-    const status = getNumberStatus(number);
+    if (getNumberStatus(number) !== 'available') return;
 
-    if (status === 'available') {
-      const newSelectedNumbers = [...selectedNumbers, number];
-      setSelectedNumbers(newSelectedNumbers);
-      onNumbersChange(newSelectedNumbers);
-    } else if (status === 'selected') {
-      const newSelectedNumbers = selectedNumbers.filter(n => n !== number);
-      setSelectedNumbers(newSelectedNumbers);
-      onNumbersChange(newSelectedNumbers);
+    const newSelectedNumbers = selectedNumbers.includes(number)
+      ? selectedNumbers.filter(n => n !== number)
+      : [...selectedNumbers, number];
+
+    setSelectedNumbers(newSelectedNumbers);
+    onNumbersChange(newSelectedNumbers);
+  };
+
+  const handleKeyDown = (event, number) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (getNumberStatus(number) === 'available') {
+        handleNumberClick(number);
+      }
     }
   };
 
@@ -128,44 +134,49 @@ const NumberGrid = ({ raffleId, totalNumbers = 100, onNumbersChange }) => {
     <div className="card">
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">Selecione os Números</h3>
-        <div className="flex flex-wrap gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
+        <div className="flex flex-wrap gap-2 mb-4" role="list" aria-label="Legenda de cores dos números">
+          <div className="flex items-center gap-2" role="listitem">
+            <div className="w-4 h-4 bg-white border border-gray-300 rounded" aria-hidden="true"></div>
             <span className="text-sm text-gray-600">Disponível</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-primary-600 rounded"></div>
+          <div className="flex items-center gap-2" role="listitem">
+            <div className="w-4 h-4 bg-primary-600 rounded" aria-hidden="true"></div>
             <span className="text-sm text-gray-600">Selecionado</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-warning-100 border border-warning-400 rounded"></div>
+          <div className="flex items-center gap-2" role="listitem">
+            <div className="w-4 h-4 bg-warning-100 border border-warning-400 rounded" aria-hidden="true"></div>
             <span className="text-sm text-gray-600">Reservado</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-success-100 border border-success-400 rounded"></div>
-            <span className="text-sm text-gray-600">Vendido</span>
+          <div className="flex items-center gap-2" role="listitem">
+            <div className="w-4 h-4 bg-success-600 rounded" aria-hidden="true"></div>
+            <span className="text-sm text-gray-600">Pago</span>
           </div>
         </div>
-
-        {selectedNumbers.length > 0 && (
-          <div className={`p-3 rounded-lg ${getStatusColor('selected')}`}>
-            <p className="font-medium">
-              {selectedNumbers.length} número(s) selecionado(s): {selectedNumbers.sort((a, b) => a - b).join(', ')}
-            </p>
-          </div>
-        )}
       </div>
 
-      <div className="grid grid-cols-10 sm:grid-cols-15 md:grid-cols-20 gap-2">
+      <div
+        className="grid grid-cols-10 gap-2 mb-6"
+        role="grid"
+        aria-label="Grade de números da rifa"
+        aria-rowcount={Math.ceil(totalNumbers / 10)}
+        aria-colcount={10}
+      >
         {Array.from({ length: totalNumbers }, (_, i) => i + 1).map((number) => {
           const status = getNumberStatus(number);
+          const className = getNumberClassName(status);
+
           return (
             <button
               key={number}
+              className={className}
               onClick={() => handleNumberClick(number)}
-              className={getNumberClassName(status)}
-              disabled={status === 'reserved' || status === 'paid'}
-              title={`Número ${number} - ${getStatusText(status)}`}
+              onKeyDown={(e) => handleKeyDown(e, number)}
+              disabled={status !== 'available'}
+              aria-label={`Número ${number} - ${getStatusText(status)}`}
+              aria-pressed={status === 'selected'}
+              aria-disabled={status !== 'available'}
+              role="gridcell"
+              tabIndex={status === 'available' ? 0 : -1}
             >
               {number}
             </button>
@@ -173,24 +184,23 @@ const NumberGrid = ({ raffleId, totalNumbers = 100, onNumbersChange }) => {
         })}
       </div>
 
-      <div className="mt-6 flex justify-between items-center">
-        <div className="text-sm text-gray-600">
-          Total: {totalNumbers} números |
-          Disponíveis: {totalNumbers - soldNumbers.length - selectedNumbers.length} |
-          Selecionados: {selectedNumbers.length}
-        </div>
-        {selectedNumbers.length > 0 && (
-          <button
-            onClick={() => {
-              setSelectedNumbers([]);
-              onNumbersChange([]);
-            }}
-            className="btn btn-secondary"
-          >
-            Limpar Seleção
-          </button>
-        )}
+      <div className="flex justify-between items-center text-sm text-gray-600" role="status" aria-live="polite">
+        <span>Números selecionados: {selectedNumbers.length}</span>
+        <span>Total: R$ {(selectedNumbers.length * 10).toFixed(2)}</span>
       </div>
+
+      {selectedNumbers.length > 0 && (
+        <button
+          onClick={() => {
+            setSelectedNumbers([]);
+            onNumbersChange([]);
+          }}
+          className="btn btn-secondary"
+          aria-label="Limpar todos os números selecionados"
+        >
+          Limpar Seleção
+        </button>
+      )}
     </div>
   );
 };
