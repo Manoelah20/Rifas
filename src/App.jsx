@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CreateRaffle from './pages/CreateRaffle';
 import PaymentSystem from './pages/PaymentSystem';
+import LegalPage from './pages/LegalPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/create-raffle" element={<CreateRaffle />} />
             <Route path="/payment-system" element={<PaymentSystem />} />
+            <Route path="/legal/:fileName" element={<LegalPage />} />
           </Routes>
         </main>
         <Footer />

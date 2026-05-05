@@ -1,3 +1,130 @@
+# RifaSorte
+
+Plataforma web para criacao e gerenciamento de rifas online, com frontend em React/Vite e backend em Node.js/Express.
+
+## Visao Geral
+
+- **Frontend:** React + Vite
+- **Backend:** Node.js + Express + MongoDB
+- **Autenticacao:** JWT
+- **Seguranca:** validacoes, rate limit e middlewares de protecao
+- **Estilizacao:** Tailwind CSS
+
+## Estrutura do Projeto
+
+```text
+rifas/
+├─ src/                      # Frontend (React)
+├─ public/                   # Assets publicos
+├─ backend/                  # API Node/Express
+│  ├─ config/
+│  ├─ controllers/
+│  ├─ middleware/
+│  ├─ models/
+│  ├─ routes/
+│  └─ utils/
+├─ package.json              # Scripts do frontend
+└─ backend/package.json      # Scripts do backend
+```
+
+## Requisitos
+
+- Node.js 18+ (recomendado)
+- npm 9+
+- MongoDB (local ou remoto)
+
+## Como Rodar Localmente
+
+### 1) Frontend
+
+Na raiz do projeto:
+
+```bash
+npm install
+npm run dev
+```
+
+Frontend padrao: `http://localhost:3000`
+
+### 2) Backend
+
+No diretorio `backend`:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Backend padrao: `http://localhost:3001`
+
+### 3) Variaveis de Ambiente (Backend)
+
+Crie o arquivo `backend/.env` com base no `backend/.env.example`.
+
+Exemplo minimo:
+
+```env
+PORT=3001
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/rifas
+JWT_SECRET=sua-chave-jwt
+ENCRYPTION_KEY=sua-chave-criptografia
+FRONTEND_URL=http://localhost:3000
+```
+
+## Scripts Disponiveis
+
+### Frontend (raiz)
+
+- `npm run dev` - sobe o frontend em modo desenvolvimento
+- `npm run build` - gera build de producao
+- `npm run preview` - preview do build
+
+### Backend (`backend/`)
+
+- `npm run dev` - sobe API com nodemon
+- `npm start` - sobe API com node
+- `npm test` - executa testes (quando existirem)
+
+## Documentacao Complementar
+
+- `QUICK_START.md` - inicio rapido
+- `USER_GUIDE.md` - guia de uso
+- `IMPLEMENTATION_CHECKLIST.md` - checklist de implementacao/deploy
+- `backend/SECURITY.md` - detalhes de seguranca
+- `backend/IMPLEMENTATION_GUIDE.md` - guia tecnico do backend
+
+## Endpoints Base
+
+- Health check: `GET /api/health`
+- Auth: `POST /api/auth/register`, `POST /api/auth/login`
+- Rifas: `GET /api/raffles`, `POST /api/raffles`
+
+## Troubleshooting Rapido
+
+- **Frontend sem estilo:** rode `npm run build` para validar pipeline CSS.
+- **Backend nao inicia:** confirme `.env` e conexao com MongoDB.
+- **Erro de dependencia:** rode `npm install` na raiz e em `backend/`.
+- **Porta ocupada:** altere `PORT` no backend e ajuste `FRONTEND_URL`.
+
+## Roadmap Curto
+
+- Melhorias no fluxo de pagamento
+- Mais testes automatizados
+- Refinamento de UI/UX
+- Monitoramento e logs avancados
+
+## Contribuicao
+
+1. Crie uma branch: `git checkout -b feature/minha-melhoria`
+2. Commit: `git commit -m "Minha melhoria"`
+3. Push: `git push origin feature/minha-melhoria`
+4. Abra um Pull Request
+
+---
+
+Projeto mantido por **Manoela**.
 # 🎯 Raffle System - Plataforma de Rifas Online
 
 > **Crie e gerencie rifas online de forma segura e confiável**

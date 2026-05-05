@@ -108,7 +108,7 @@ const Raffle = () => {
                 <div className="card">
                   <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <img
-                      src="/images/bilhete.png"
+                      src="/images/ticket-professional.svg"
                       alt="Bilhete"
                       className="w-12 h-12 sm:w-16 sm:h-16 object-contain flex-shrink-0"
                     />
@@ -128,10 +128,11 @@ const Raffle = () => {
               {/* Number Grid Section */}
               <div>
                 <NumberGrid
-                  raffleId={selectedRaffle._id}
-                  totalNumbers={selectedRaffle.totalNumbers}
-                  onNumbersChange={handleNumbersChange}
-                />
+                   raffleId={selectedRaffle._id}
+                   totalNumbers={selectedRaffle.totalNumbers}
+                   pricePerNumber={selectedRaffle.pricePerNumber}
+                   onNumbersChange={handleNumbersChange}
+                 />
 
                 {/* Purchase Section */}
                 {selectedNumbers.length > 0 && (

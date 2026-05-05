@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
 
+// Sample data for when API is not available
+const sampleRaffles = [
+  {
+    _id: '1',
+    title: 'Rifa iPhone 15 Pro',
+    description: 'iPhone 15 Pro Max 256GB - Titânio Natural. Prêmio incrível para você!',
+    prize: 'iPhone 15 Pro Max 256GB',
+    prizeImage: '/images/sorteio2.png',
+    totalNumbers: 200,
+    soldNumbers: [1,2,3,4,5],
+    reservedNumbers: [6,7,8],
+    pricePerNumber: 25.00,
+    drawDate: '2026-06-15'
+  },
+  {
+    _id: '2',
+    title: 'Rifa PlayStation 5',
+    description: 'PS5 Slim + 2 Controles + 3 Jogos. Diversão garantida!',
+    prize: 'PlayStation 5 Slim + Acessórios',
+    prizeImage: '/images/sorteio.png',
+    totalNumbers: 150,
+    soldNumbers: [10,11,12],
+    reservedNumbers: [],
+    pricePerNumber: 30.00,
+    drawDate: '2026-07-20'
+  }
+];
+
 const calculateRaffleProgress = (raffle) => {
   const sold = raffle.soldNumbers?.length || 0;
   const reserved = raffle.reservedNumbers?.length || 0;
@@ -9,19 +37,19 @@ const calculateRaffleProgress = (raffle) => {
   return { sold, reserved, percentage };
 };
 
-const RaffleCard = ({ raffle, onClick }) => {
+const RaffleCard = ({ raffle, onSelectRaffle }) => {
   const progress = calculateRaffleProgress(raffle);
 
   return (
     <div
       className="bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow duration-300"
-      onClick={() => onClick(raffle)}
+      onClick={() => onSelectRaffle(raffle)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onClick(raffle);
+          onSelectRaffle(raffle);
         }
       }}
       aria-label={`Ver detalhes da rifa: ${raffle.title}`}
@@ -48,7 +76,7 @@ const RaffleCard = ({ raffle, onClick }) => {
           </div>
 
           {/* Progress */}
-          <div className="mb-3">
+          <div className="mb-4">
             <div className="flex justify-between text-xs text-gray-600 mb-1">
               <span>Vendidos: {progress.sold + progress.reserved}/{raffle.totalNumbers}</span>
               <span>{progress.percentage.toFixed(1)}%</span>
@@ -59,28 +87,20 @@ const RaffleCard = ({ raffle, onClick }) => {
                 style={{ width: `${progress.percentage}%` }}
               ></div>
             </div>
-            <div className="w-3 h-3 bg-warning-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">{soldCount} vendidos</span>
           </div>
-        </div>
 
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-          <div
-            className="bg-gradient-to-r from-success-500 to-warning-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
-        </div>
-
-        <div className="flex space-x-3">
-          <button
-            onClick={() => onSelectRaffle(raffle)}
-            className="flex-1 btn btn-primary font-semibold"
-          >
-            Selecionar Números
-          </button>
-          <button className="btn btn-secondary">
-            Ver Detalhes
-          </button>
+          {/* Action Buttons */}
+          <div className="flex space-x-3">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectRaffle(raffle);
+              }}
+              className="flex-1 btn btn-primary font-semibold"
+            >
+              Selecionar Números
+            </button>
+          </div>
         </div>
       </div>
     </div>

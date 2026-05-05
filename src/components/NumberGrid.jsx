@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
 
-const NumberGrid = ({ raffleId, totalNumbers = 100, onNumbersChange }) => {
+const NumberGrid = ({ raffleId, totalNumbers = 100, pricePerNumber = 10, onNumbersChange }) => {
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [soldNumbers, setSoldNumbers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -184,10 +184,10 @@ const NumberGrid = ({ raffleId, totalNumbers = 100, onNumbersChange }) => {
         })}
       </div>
 
-      <div className="flex justify-between items-center text-sm text-gray-600" role="status" aria-live="polite">
-        <span>Números selecionados: {selectedNumbers.length}</span>
-        <span>Total: R$ {(selectedNumbers.length * 10).toFixed(2)}</span>
-      </div>
+        <div className="flex justify-between items-center text-sm text-gray-600" role="status" aria-live="polite">
+          <span>Números selecionados: {selectedNumbers.length}</span>
+          <span>Total: R$ {(selectedNumbers.length * pricePerNumber).toFixed(2)}</span>
+        </div>
 
       {selectedNumbers.length > 0 && (
         <button
